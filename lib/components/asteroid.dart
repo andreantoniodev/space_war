@@ -8,13 +8,13 @@ import 'package:space_war/components/explosion.dart';
 import 'package:space_war/my_game.dart';
 
 class Asteroid extends SpriteComponent with HasGameReference<MyGame> {
-  Asteroid({required super.position, double size = _maxSize}) : super(size: Vector2.all(120), anchor: Anchor.center, priority: -1) {
+  Asteroid({required super.position, double size = _maxSize}) : super(size: Vector2.all(size), anchor: Anchor.center, priority: -1) {
     _velocity = _generateVelocity();
     _originalVelocity.setFrom(_velocity);
     _spinSpeed = _random.nextDouble() * 1.5 - 0.75;
     _health = size / _maxSize * _maxHealth;
 
-    add(CircleHitbox());
+    add(CircleHitbox(collisionType: CollisionType.passive));
   }
 
   final Random _random = Random();
@@ -65,9 +65,12 @@ class Asteroid extends SpriteComponent with HasGameReference<MyGame> {
     _health--;
 
     if (_health <= 0) {
+      game.incrementScore(2);
       removeFromParent();
       _createExplosion();
+      _spliAsteroid();
     } else {
+      game.incrementScore(1);
       _flashWhite();
       _applyKnockBack();
     }
@@ -98,5 +101,15 @@ class Asteroid extends SpriteComponent with HasGameReference<MyGame> {
   void _createExplosion() {
     final Explosion explosion = Explosion(position: position.clone(), explosionType: ExplosionType.dust, explosionSize: size.x);
     game.add(explosion);
+  }
+
+  void _spliAsteroid() {
+    if (size.x <= _maxSize / 3) return;
+
+    for (int i = 0; i < 3; i++) {
+      final Asteroid fragment = Asteroid(position: position.clone(), size: size.x - _maxSize / 3);
+      fragment._health = _health / 2;
+      game.add(fragment);
+    }
   }
 }

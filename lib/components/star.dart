@@ -1,0 +1,36 @@
+import 'dart:math';
+
+import 'package:flame/components.dart';
+import 'package:flutter/rendering.dart';
+import 'package:space_war/my_game.dart';
+
+class Star extends CircleComponent with HasGameReference<MyGame> {
+  // Star({required super.position}) : super(radius: 1);
+
+  final Random _random = Random();
+  final int _maxSize = 3;
+  late double _speed;
+
+  @override
+  Future<void> onLoad() async {
+    _speed = _random.nextDouble() * 50 + 50;
+
+    size = Vector2.all(1.0 + _random.nextInt(_maxSize));
+    position = Vector2(_random.nextDouble() * game.size.x, _random.nextDouble() * game.size.y);
+
+    _speed = size.x * (40 + _random.nextInt(10));
+
+    paint.color = Color.fromRGBO(255, 255, 255, size.x / _maxSize);
+    return super.onLoad();
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    position.y += _speed * dt;
+    if (position.y > game.size.y + size.y / 2) {
+      position.y = -size.y / 2;
+      position.x = _random.nextDouble() * game.size.x;
+    }
+  }
+}
