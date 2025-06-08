@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="space_war"
+        android:label="Space War"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
