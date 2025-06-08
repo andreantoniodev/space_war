@@ -28,9 +28,12 @@ class Player extends SpriteAnimationComponent with HasGameReference<MyGame>, Key
   late Timer _explosionTimer;
   late Timer _laserPowerupTimer;
   Shield? activeShield;
+  late String _color;
 
   @override
   Future<void> onLoad() async {
+    _color = game.playerColors[game.playerColorIndex];
+
     animation = await _loadAnimation();
 
     size *= 0.3;
@@ -53,7 +56,7 @@ class Player extends SpriteAnimationComponent with HasGameReference<MyGame>, Key
     }
 
     final Vector2 movement = game.joystick.relativeDelta + _keyboarMovement;
-    position += movement.normalized() * 200 * dt;
+    position += movement.normalized() * 250 * dt;
 
     _handleScreenBounds();
 
@@ -66,7 +69,7 @@ class Player extends SpriteAnimationComponent with HasGameReference<MyGame>, Key
 
   Future<SpriteAnimation> _loadAnimation() async {
     return SpriteAnimation.spriteList(
-      [await game.loadSprite('player_blue_on0.png'), await game.loadSprite('player_blue_on1.png')],
+      [await game.loadSprite('player_${_color}_on0.png'), await game.loadSprite('player_${_color}_on1.png')],
       stepTime: 0.1,
       loop: true,
     );
@@ -102,11 +105,11 @@ class Player extends SpriteAnimationComponent with HasGameReference<MyGame>, Key
   }
 
   void _handleDestruction() async {
-    animation = SpriteAnimation.spriteList([await game.loadSprite('player_blue_off.png')], stepTime: double.infinity);
+    animation = SpriteAnimation.spriteList([await game.loadSprite('player_${_color}_off.png')], stepTime: double.infinity);
     add(ColorEffect(const Color.fromRGBO(255, 255, 255, 1), EffectController(duration: 0)));
     add(OpacityEffect.fadeOut(EffectController(duration: 0.5), onComplete: () => _explosionTimer.stop()));
     add(MoveEffect.by(Vector2(0, 200), EffectController(duration: 3)));
-    add(RemoveEffect(delay: 4));
+    add(RemoveEffect(delay: 1, onComplete: () => game.playerDied()));
 
     _isDestroyed = true;
 
@@ -141,8 +144,8 @@ class Player extends SpriteAnimationComponent with HasGameReference<MyGame>, Key
           game.add(Bomb(position: position.clone()));
           break;
         case PickupType.shield:
-          if (activeShield == null) {
-            remove(activeShield!);
+          if (activeShield != null) {
+            activeShield!.removeFromParent();
           }
           activeShield = Shield();
           add(activeShield!);
@@ -161,6 +164,13 @@ class Player extends SpriteAnimationComponent with HasGameReference<MyGame>, Key
     _keyboarMovement.y = 0;
     _keyboarMovement.y += keysPressed.contains(LogicalKeyboardKey.arrowUp) ? -1 : 0;
     _keyboarMovement.y += keysPressed.contains(LogicalKeyboardKey.arrowDown) ? 1 : 0;
+
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.space) {
+      strarShooting();
+    } else if (event is KeyUpEvent && event.logicalKey == LogicalKeyboardKey.space) {
+      stopShooting();
+    }
+
     return true;
   }
 }

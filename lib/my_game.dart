@@ -20,6 +20,8 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDe
   int _score = 0;
   late TextComponent _scoreDisplay;
   late SpawnComponent _pickupSpawnner;
+  final List<String> playerColors = ['blue', 'red', 'green', 'purple'];
+  int playerColorIndex = 0;
 
   final Random _random = Random();
 
@@ -27,8 +29,8 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDe
   Future<void> onLoad() async {
     await Flame.device.fullScreen();
     await Flame.device.setPortrait();
-    startGame();
     _createStars();
+
     super.onLoad();
   }
 
@@ -72,8 +74,8 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDe
   void _createAsteroidSpawnner() {
     _asteroidSpawnner = SpawnComponent.periodRange(
       factory: (amount) => Asteroid(position: _generateSpawnPosition()),
-      minPeriod: 0.7,
-      maxPeriod: 1.2,
+      minPeriod: 1.2,
+      maxPeriod: 2,
       selfPositioning: true,
     );
     add(_asteroidSpawnner);
@@ -125,5 +127,47 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDe
     for (int i = 0; i < 50; i++) {
       add(Star()..priority = -10);
     }
+  }
+
+  void playerDied() {
+    overlays.add('GameOver');
+    pauseEngine();
+  }
+
+  void restartGame() {
+    children.whereType<PositionComponent>().forEach((component) {
+      if (component is Asteroid || component is Pickup) {
+        remove(component);
+      }
+    });
+    _asteroidSpawnner.timer.start();
+    _pickupSpawnner.timer.start();
+
+    _score = 0;
+    _scoreDisplay.text = '0';
+
+    _createPlayer();
+
+    resumeEngine();
+  }
+
+  void quitGame() {
+    children.whereType<PositionComponent>().forEach((component) {
+      if (component is! JoystickComponent && component is! ShootButton) {
+        remove(component);
+      }
+    });
+
+    if (_asteroidSpawnner.isMounted) {
+      remove(_asteroidSpawnner);
+    }
+    if (_pickupSpawnner.isMounted) {
+      remove(_pickupSpawnner);
+    }
+
+    overlays.remove('GameOver');
+    overlays.add('Title');
+
+    resumeEngine();
   }
 }

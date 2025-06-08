@@ -1,8 +1,9 @@
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:flutter/services.dart';
 import 'package:space_war/my_game.dart';
 
-class ShootButton extends SpriteComponent with HasGameReference<MyGame>, TapCallbacks {
+class ShootButton extends SpriteComponent with HasGameReference<MyGame>, TapCallbacks, HoverCallbacks {
   ShootButton() : super(size: Vector2.all(80));
 
   @override
@@ -12,20 +13,26 @@ class ShootButton extends SpriteComponent with HasGameReference<MyGame>, TapCall
   }
 
   @override
-  void onTapDown(TapDownEvent event) {
+  bool onTapDown(TapDownEvent event) {
     game.player.strarShooting();
-    super.onTapDown(event);
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+    return true;
   }
 
   @override
-  void onTapUp(TapUpEvent event) {
+  bool onTapUp(TapUpEvent event) {
     game.player.stopShooting();
-    super.onTapUp(event);
+    return true;
   }
 
   @override
-  void onTapCancel(TapCancelEvent event) {
+  bool onTapCancel(TapCancelEvent event) {
     game.player.stopShooting();
-    super.onTapCancel(event);
+    return true;
+  }
+
+  @override
+  void onHoverEnter() {
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
   }
 }
