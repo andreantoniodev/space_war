@@ -5,8 +5,6 @@ import 'package:flutter/rendering.dart';
 import 'package:space_war/my_game.dart';
 
 class Star extends CircleComponent with HasGameReference<MyGame> {
-  // Star({required super.position}) : super(radius: 1);
-
   final Random _random = Random();
   final int _maxSize = 3;
   late double _speed;

@@ -100,6 +100,7 @@ class Player extends SpriteAnimationComponent with HasGameReference<MyGame>, Key
     game.add(Laser(position: position.clone() + Vector2(0, -size.y / 2)));
 
     if (_laserPowerupTimer.isRunning()) {
+      game.add(Laser(position: position.clone() + Vector2(0, -size.y / 2), angle: 15 * degrees2Radians));
       game.add(Laser(position: position.clone() + Vector2(0, -size.y / 2), angle: -15 * degrees2Radians));
     }
   }

@@ -100,7 +100,7 @@ class MyGame extends FlameGame with HasKeyboardHandlerComponents, HasCollisionDe
     _scoreDisplay = TextComponent(
       text: _score.toString(),
       anchor: Anchor.topCenter,
-      position: Vector2(size.x / 2, 20),
+      position: Vector2(size.x / 2, 40),
       priority: 10,
       textRenderer: TextPaint(
         style: const TextStyle(
